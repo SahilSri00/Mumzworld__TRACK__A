@@ -119,15 +119,42 @@ function setupSpeechRecognition() {
         updateCharCount();
     };
 
+    let networkRetries = 0;
+    const MAX_RETRIES = 3;
+
     recognition.onerror = (event) => {
-        console.error('Speech error:', event.error);
-        stopRecording();
+        console.warn('Speech error:', event.error);
         if (event.error === 'not-allowed') {
-            showError('Microphone access denied. Please allow microphone access and try again.');
+            stopRecording();
+            showError('Microphone access denied. Please allow mic access in your browser settings.');
+        } else if (event.error === 'network') {
+            // Chrome's speech API often throws a network error on first try.
+            // Silently retry a few times before giving up.
+            networkRetries++;
+            if (networkRetries >= MAX_RETRIES) {
+                stopRecording();
+                showError('Voice input unavailable. Make sure you are using http://localhost:8000 in Chrome.');
+                networkRetries = 0;
+            }
+            // Otherwise let onend auto-restart
         }
+        // For 'no-speech', 'aborted', etc. — let onend handle restart
     };
 
-    recognition.onend = () => { if (isRecording) stopRecording(); };
+    recognition.onend = () => {
+        // If we're still supposed to be recording, auto-restart
+        if (isRecording) {
+            setTimeout(() => {
+                if (!isRecording) return; // User clicked stop during the delay
+                try {
+                    recognition.start();
+                } catch (e) {
+                    console.warn('Could not restart recognition:', e);
+                    stopRecording();
+                }
+            }, 300); // Small delay prevents rapid-fire restarts
+        }
+    };
 }
 
 function toggleRecording() {
@@ -141,15 +168,23 @@ function toggleRecording() {
 function startRecording() {
     const activeLang = langToggle.querySelector('.lang-btn.active').dataset.lang;
     recognition.lang = activeLang === 'ar' ? 'ar-SA' : 'en-US';
-    recognition.start();
+    try {
+        recognition.start();
+    } catch (e) {
+        // Already started — stop and restart
+        recognition.stop();
+        setTimeout(() => {
+            try { recognition.start(); } catch (err) { console.warn(err); }
+        }, 100);
+    }
     isRecording = true;
     micBtn.classList.add('recording');
-    messageInput.placeholder = activeLang === 'ar' ? 'جاري الاستماع...' : 'Listening...';
+    messageInput.placeholder = activeLang === 'ar' ? 'جاري الاستماع... 🎤' : 'Listening... 🎤';
 }
 
 function stopRecording() {
-    recognition.stop();
-    isRecording = false;
+    isRecording = false; // Set this FIRST so onend doesn't restart
+    try { recognition.stop(); } catch (e) { /* already stopped */ }
     micBtn.classList.remove('recording');
     const activeLang = langToggle.querySelector('.lang-btn.active').dataset.lang;
     messageInput.placeholder = activeLang === 'ar'
