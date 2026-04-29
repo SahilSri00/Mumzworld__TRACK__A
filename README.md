@@ -4,6 +4,8 @@
 >
 > Turn a busy mom's messy text or voice message — in English or Arabic — into a structured shopping list, calendar events, and Mumzworld search queries. The system expresses uncertainty when information is vague and politely refuses out-of-scope requests.
 
+> **Loom Walkthrough:**
+> https://www.loom.com/share/167d91c950f04702af557bd72f64fefc
 ---
 
 ## Quick Start
