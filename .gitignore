@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+pdf_content.txt
+ai-intern-mumzworld.pdf
+venv/
+.venv/

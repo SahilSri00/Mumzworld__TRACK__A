@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mumzworld AI Shopping Assistant — Turn your voice or text messages into structured shopping lists and calendar events.">
+    <title>Mumzworld Smart Shopping List — AI Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- ── Animated Background ── -->
+    <div class="bg-gradient"></div>
+    <div class="bg-particles" id="particles"></div>
+
+    <!-- ── Main Container ── -->
+    <div class="container">
+        <!-- ── Header ── -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 40 40" fill="none">
+                        <circle cx="20" cy="20" r="18" stroke="url(#grad1)" stroke-width="2.5"/>
+                        <path d="M14 22C14 22 16 26 20 26C24 26 26 22 26 22" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="15" cy="17" r="1.5" fill="url(#grad1)"/>
+                        <circle cx="25" cy="17" r="1.5" fill="url(#grad1)"/>
+                        <path d="M12 12C12 12 14 8 20 8C26 8 28 12 28 12" stroke="url(#grad1)" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+                        <defs>
+                            <linearGradient id="grad1" x1="0" y1="0" x2="40" y2="40">
+                                <stop offset="0%" stop-color="#E91E8C"/>
+                                <stop offset="100%" stop-color="#A855F7"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div>
+                    <h1>Mumzworld Smart List</h1>
+                    <p class="subtitle">AI-powered shopping assistant for busy moms</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="lang-toggle" id="langToggle">
+                    <button class="lang-btn active" data-lang="en">EN</button>
+                    <button class="lang-btn" data-lang="ar">عربي</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ── Input Section ── -->
+        <section class="input-section" id="inputSection">
+            <div class="input-card glass-card">
+                <div class="input-header">
+                    <h2>What do you need?</h2>
+                    <p>Type, paste, or speak your shopping needs — in English or Arabic</p>
+                </div>
+
+                <div class="textarea-wrapper">
+                    <textarea 
+                        id="messageInput" 
+                        placeholder="e.g., need diapers for Layla she's size 3, her birthday is next month need party stuff, and Noura just had a baby wanna send something nice under 150 dirhams..."
+                        rows="4"
+                        maxlength="3000"
+                    ></textarea>
+                    <div class="textarea-actions">
+                        <span class="char-count" id="charCount">0 / 3000</span>
+                        <button class="btn-icon mic-btn" id="micBtn" title="Voice input">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                <line x1="12" y1="19" x2="12" y2="23"/>
+                                <line x1="8" y1="23" x2="16" y2="23"/>
+                            </svg>
+                            <span class="mic-status" id="micStatus"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="parseBtn">
+                    <span class="btn-text">Parse My List</span>
+                    <span class="btn-loader" id="btnLoader"></span>
+                    <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+
+                <!-- ── Example Messages ── -->
+                <div class="examples">
+                    <p class="examples-label">Try an example:</p>
+                    <div class="example-chips" id="exampleChips">
+                        <button class="chip" data-message="need diapers for Layla she's size 3 now, her birthday is next month need party stuff, and Noura just had a baby boy wanna send something nice under 150 dirhams">
+                            🛒 Full shopping list
+                        </button>
+                        <button class="chip" data-message="محتاجة حليب لرضيعي عمره ٣ شهور وكمان عربية أطفال مريحة للسفر، ميزانيتي للعربية ما تتعدى ٨٠٠ درهم">
+                            🇦🇪 Arabic message
+                        </button>
+                        <button class="chip" data-message="maybe get something for teething? idk my sister said some toy was good but I can't remember the name">
+                            🤔 Vague / uncertain
+                        </button>
+                        <button class="chip" data-message="what's the best recipe for chocolate cake?">
+                            🚫 Out of scope
+                        </button>
+                        <button class="chip" data-message="Running low on Pampers size 4 for Adam, need at least 2 boxes. Also looking for a good car seat, he's 14 months now and around 10kg. Oh and my friend Sara's baby shower is on June 15th, need a cute gift set maybe from Chicco or Tommee Tippee, budget around 200-250 AED">
+                            📦 Detailed request
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Results Section ── -->
+        <section class="results-section hidden" id="resultsSection">
+            <!-- Summary Card -->
+            <div class="result-card glass-card summary-card" id="summaryCard">
+                <div class="card-header">
+                    <div class="card-icon summary-icon">📋</div>
+                    <h3>Summary</h3>
+                    <div class="confidence-badge" id="overallConfidence"></div>
+                </div>
+                <p class="summary-text" id="summaryText"></p>
+                <div class="uncertainty-notes" id="uncertaintyNotes"></div>
+                <div class="out-of-scope-banner hidden" id="outOfScopeBanner">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    <span id="outOfScopeReason"></span>
+                </div>
+            </div>
+
+            <!-- Shopping Items -->
+            <div class="result-card glass-card" id="shoppingCard">
+                <div class="card-header">
+                    <div class="card-icon shopping-icon">🛍️</div>
+                    <h3>Shopping List</h3>
+                    <span class="item-count" id="itemCount"></span>
+                </div>
+                <div class="items-grid" id="shoppingItems"></div>
+                <div class="empty-state hidden" id="shoppingEmpty">
+                    <p>No shopping items found in this message.</p>
+                </div>
+            </div>
+
+            <!-- Calendar Events -->
+            <div class="result-card glass-card" id="calendarCard">
+                <div class="card-header">
+                    <div class="card-icon calendar-icon">📅</div>
+                    <h3>Calendar Events</h3>
+                    <span class="item-count" id="eventCount"></span>
+                </div>
+                <div class="events-list" id="calendarEvents"></div>
+                <div class="empty-state hidden" id="calendarEmpty">
+                    <p>No calendar events found in this message.</p>
+                </div>
+            </div>
+
+            <!-- Raw JSON Toggle -->
+            <div class="result-card glass-card json-card">
+                <div class="card-header clickable" id="jsonToggle">
+                    <div class="card-icon json-icon">{ }</div>
+                    <h3>Raw JSON Response</h3>
+                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
+                <pre class="json-output hidden" id="jsonOutput"></pre>
+            </div>
+
+            <!-- New Message Button -->
+            <button class="btn-secondary" id="newMessageBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                Parse Another Message
+            </button>
+        </section>
+
+        <!-- ── Error Toast ── -->
+        <div class="toast hidden" id="errorToast">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span id="errorMessage"></span>
+        </div>
+    </div>
+
+    <!-- ── Footer ── -->
+    <footer class="footer">
+        <p>Built for Mumzworld AI Engineering Intern Assessment — Track A</p>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
